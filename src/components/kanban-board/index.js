@@ -9,15 +9,15 @@ export default class KanbanBoard extends Component {
     this.state = {
       newTask: "",
       tasks: [
-        { name: "1", stage: 0 },
-        { name: "2", stage: 0 },
+        { name: "task 0", stage: 0 },
+        { name: "task 1", stage: 0 },
       ],
     };
     this.stagesNames = ["Backlog", "To Do", "Ongoing", "Done"];
   }
 
   render() {
-    const { tasks } = this.state;
+    const { tasks, newTask } = this.state;
 
     let stagesTasks = [];
     for (let i = 0; i < this.stagesNames.length; ++i) {
@@ -28,6 +28,39 @@ export default class KanbanBoard extends Component {
       stagesTasks[stageId].push(task);
     }
 
+    const pushToBacklog = () => {
+      this.setState({
+        tasks: [...tasks, { name: newTask, stage: 0 }],
+      });
+    };
+
+    const setTask = (e) => {
+      this.setState({
+        newTask: e.target.value,
+      });
+    };
+
+    const deleteHandler = (deleteTask) => {
+      this.setState({
+        tasks: tasks.filter((task) => task !== deleteTask),
+      });
+    };
+
+    const moveTheTask = (direction, currInd, taskName) => {
+      if (currInd > 0 || currInd < stagesTasks.length - 1) {
+        const res = tasks.map((task) => {
+          if (task.name === taskName) {
+            task.stage =
+              direction === "backward" ? task.stage - 1 : task.stage + 1;
+          }
+          return task;
+        });
+        this.setState({
+          tasks: [...res],
+        });
+      }
+    };
+
     return (
       <div className="mt-20 layout-column justify-content-center align-items-center">
         <section className="mt-50 layout-row align-items-center justify-content-center">
@@ -37,13 +70,13 @@ export default class KanbanBoard extends Component {
             className="large"
             placeholder="New task name"
             data-testid="create-task-input"
-            onChange={this.setTask}
+            onChange={setTask}
           />
           <button
             type="submit"
             className="ml-30"
             data-testid="create-task-button"
-            onClick={this.pushToBacklog}
+            onClick={pushToBacklog}
           >
             Create task
           </button>
@@ -73,6 +106,10 @@ export default class KanbanBoard extends Component {
                                 data-testid={`${task.name
                                   .split(" ")
                                   .join("-")}-back`}
+                                disabled={task.stage === 0 ? true : false}
+                                onClick={(e) =>
+                                  moveTheTask("backward", i, task.name)
+                                }
                               >
                                 <i className="material-icons">arrow_back</i>
                               </button>
@@ -81,6 +118,14 @@ export default class KanbanBoard extends Component {
                                 data-testid={`${task.name
                                   .split(" ")
                                   .join("-")}-forward`}
+                                disabled={
+                                  task.stage >= stagesTasks.length - 1
+                                    ? true
+                                    : false
+                                }
+                                onClick={() =>
+                                  moveTheTask("forward", i, task.name)
+                                }
                               >
                                 <i className="material-icons">arrow_forward</i>
                               </button>
@@ -89,6 +134,7 @@ export default class KanbanBoard extends Component {
                                 data-testid={`${task.name
                                   .split(" ")
                                   .join("-")}-delete`}
+                                onClick={() => deleteHandler(task)}
                               >
                                 <i className="material-icons">delete</i>
                               </button>
