@@ -47,18 +47,16 @@ export default class KanbanBoard extends Component {
     };
 
     const moveTheTask = (direction, currInd, taskName) => {
-      if (currInd > 0 || currInd < stagesTasks.length - 1) {
-        const res = tasks.map((task) => {
-          if (task.name === taskName) {
-            task.stage =
-              direction === "backward" ? task.stage - 1 : task.stage + 1;
-          }
-          return task;
-        });
-        this.setState({
-          tasks: [...res],
-        });
-      }
+      const res = tasks.map((task) => {
+        if (task.name === taskName) {
+          task.stage =
+            direction === "backward" ? task.stage - 1 : task.stage + 1;
+        }
+        return task;
+      });
+      this.setState({
+        tasks: [...res],
+      });
     };
 
     return (
@@ -119,7 +117,7 @@ export default class KanbanBoard extends Component {
                                   .split(" ")
                                   .join("-")}-forward`}
                                 disabled={
-                                  task.stage >= stagesTasks.length - 1
+                                  task.stage === stagesTasks.length - 1
                                     ? true
                                     : false
                                 }
